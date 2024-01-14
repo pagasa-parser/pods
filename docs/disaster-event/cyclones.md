@@ -72,7 +72,7 @@ Meteorological information objects contain relevant information about a storm's
 intensity, position, and movement.
 
 * Meteorological information objects **MUST** follow the [disaster event current
-  information object](definition.md#Current-information).
+  information object](definition.md#current-information).
 * Meteorological information objects **MUST** have an `issuing_agency` string property with
   the proper issuing agency information ([see below](#issuing-agency)).
 * Meteorological information objects **SHOULD** have a `category` string property with the
@@ -176,7 +176,7 @@ of the tropical cyclone resource object is highly specific to the TCWS.
 * The `warnings` property **MUST** be an object with keys `"5"`, `"4"`, `"3"`, `"2"`, `"1"`.
 * The properties of `warnings` **SHOULD** be ordered in decreasing severity.
 * Each key represents a TCWS warning level, from TCWS #1 to TCWS #5.
-* Each value in `warnings` **MUST** be an array of [warning areas](#warning-areas).
+* Each value in `warnings` **MUST** be an array of [warning objects](#warning-objects).
 
 ## Areas
 An **area** here refers to a province, municipality, island, island group, or
@@ -203,26 +203,30 @@ policy should be applied in producing and implementing TCWS warnings objects:
       portion of the area referenced by `name`.
     * This property **MUST** be `false` if the warning is fully applicable
       to the area, with no other parts of the area under a higher TCWS level.
-* If a warning has been raised only for a portion of an area, the area
+* If a warning has been raised only for a section of an area, the warning area
   **MUST** have its own TCWS warning object with `partial` set to `true`.
     * Such an object **MUST** have an `includes` object property.
-        * The object **MUST** have a `term` string property, set to the term
-          used in describing the part (e.g. "portion", "region", etc.)
-        * The object **MUST** have a `part` string property, set to the part
-          of the area which is under the warning (e.g. "northwestern").
-        * For "mainland" areas, the `part` property **MUST** be set to
-          `"mainland"` and the `term` property **MUST** be undefined.
-        * For "rest of" areas, the `part` property **MUST** be set to
-          `"rest"` and the `term` property **MUST** be undefined.
-        * The object **MUST** have an `areas` array property.
-        * For every included area in the warning, the `areas` array **MUST**
-          contain a valid [area object](#areas). This **MAY** be an empty
-          array if the `part` is `"rest"` or `"mainland"` and no areas were
-          explicitly mentioned in the bulletin.
-        * Islands that are part of the included areas in the warning **MAY**
-          be given a [valid `psgc` property](#philippine-standard-geographic-code)
-          if one is available, as long as the entirety of the island is within
-          the jurisdiction of the area.
+      * The object `type` property **MUST** be set to `"section"`
+      * The object **MUST** have a `term` string property, set to the term
+        used in describing the part (e.g. "portion", "region", etc.)
+      * The object **MUST** have a `part` string property, set to the part
+        of the area which is under the warning (e.g. "northwestern").
+* If a warning has been raised only for a "mainland" area:
+  * The `type` property **MUST** be set to `"mainland"`
+  * The `part` and `term` properties **MUST** be undefined
+* If a warning has been raised only for the rest of an area:
+  * The `type` property **MUST** be set to `"rest"`
+  * The `part` and `term` properties **MUST** be undefined
+* For sections, mainlands, and "rest of"s:
+  * The `includes` object **MUST** have an `areas` array property.
+  * For every included area in the warning, the `areas` array **MUST**
+    contain a valid [area object](#areas). This **MAY** be an empty
+    array if the `part` is `"rest"` or `"mainland"` and no areas were
+    explicitly mentioned in the bulletin.
+    * Islands that are part of the included areas in the warning **MAY**
+      be given a [valid `psgc` property](#philippine-standard-geographic-code)
+      if one is available, as long as the entirety of the island is within
+      the jurisdiction of the area.
 * Islands which are not included areas of a warning **MUST** be given
   their own TCWS warning object if they are under a TCWS warning, even
   if the island is part of a larger area which is also under a TCWS warning.
@@ -259,7 +263,7 @@ and allows easy machine processing of affected areas.
 
 ### Example conversions
 
-TCWS warning object for the entire province of Albay
+TCWS warning object for the entire province of Albay:
 ```json
 { 
   "psgc": "050500000",
@@ -267,7 +271,7 @@ TCWS warning object for the entire province of Albay
   "partial": false
 }
 ```
-TCWS warning object for the City of Manila, under the name "Manila"
+TCWS warning object for the City of Manila, under the name "Manila":
 ```json
 { 
   "psgc": "133900000",
@@ -276,51 +280,88 @@ TCWS warning object for the City of Manila, under the name "Manila"
 }
 ```
 
-TCWS #2 for the extreme southern portion of Bulacan, TCWS #1 for the rest of Bulacan
+TCWS #2 for the extreme southern portion of Bulacan, TCWS #1 for the rest of Bulacan:
+
 ```json
 {
-  "2": [ { 
-    "psgc": "031400000",
-    "name": "Bulacan",
-    "partial": true,
-    "includes": {
-      "term": "portion",
-      "part": "extreme southern",
-      "areas": [
-        { "psgc": "0301404000", "name": "Bocaue" },
-        { "psgc": "0301405000", "name": "Bulakan" },
-        { "psgc": "0301411000", "name": "Marilao" },
-        { "psgc": "0301412000", "name": "Meycauayan" },
-        { "psgc": "0301414000", "name": "Obando" },
-      ]
-    }
-  } ],
-  "1": [ {
-    "psgc": "031400000",
-    "name": "Bulacan",
-    "partial": true,
-    "includes": {
-      "part": "rest"
-    }
-  } ]
+    "2": [
+        {
+            "psgc": "031400000",
+            "name": "Bulacan",
+            "partial": true,
+            "includes": {
+                "type": "section",
+                "term": "portion",
+                "part": "extreme southern",
+                "areas": [
+                    {
+                        "psgc": "0301404000",
+                        "name": "Bocaue"
+                    },
+                    {
+                        "psgc": "0301405000",
+                        "name": "Bulakan"
+                    },
+                    {
+                        "psgc": "0301411000",
+                        "name": "Marilao"
+                    },
+                    {
+                        "psgc": "0301412000",
+                        "name": "Meycauayan"
+                    },
+                    {
+                        "psgc": "0301414000",
+                        "name": "Obando"
+                    }
+                ]
+            }
+        }
+    ],
+    "1": [
+        {
+            "psgc": "031400000",
+            "name": "Bulacan",
+            "partial": true,
+            "includes": {
+                "part": "rest"
+            }
+        }
+    ]
 }
 ```
 
 TCWS #5 for the eastern portion of Babuyan Islands (Camiguin Island).
 TCWS #4 for Cagayan. Note that the Babuyan Islands is not given a `psgc`
 property, but Camiguin Island was given a `psgc` property as it is within
-the jurisdiction of Calayan.
+the jurisdiction of Calayan. This behavior is not required, and exists
+as a convenience for map rendering.
+
 ```json
 {
-  "5": [ {
-    "name": "Babuyan Islands",
-    "partial": true,
-    "includes": {
-      "term": "portion",
-      "part": "eastern",
-      "areas": [ { "psgc": "0201509000", "name": "Camiguin Island" } ]
-    }
-  } ],
-  "4": [ { "psgc": "0201500000", "name": "Cagayan", "partial": false } ]
+    "5": [
+        {
+            "name": "Babuyan Islands",
+            "partial": true,
+            "includes": {
+                "type": "section",
+                "term": "portion",
+                "part": "eastern",
+                "areas": [
+                    {
+                        "psgc": "0201509000",
+                        "name": "Camiguin Island"
+                    }
+                ]
+            }
+        }
+    ],
+    "4": [
+        {
+            "psgc": "0201500000",
+            "name": "Cagayan",
+            "partial": false
+        }
+    ]
 }
 ```
