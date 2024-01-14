@@ -178,15 +178,47 @@ of the tropical cyclone resource object is highly specific to the TCWS.
 * Each key represents a TCWS warning level, from TCWS #1 to TCWS #5.
 * Each value in `warnings` **MUST** be an array of [warning areas](#warning-areas).
 
-## Warning areas
+## Areas
+An **area** here refers to a province, municipality, island, island group, or
+barangay.
+
+* All area objects **MUST** have a `name` string property.
+  * It **MUST** be set to the name of the area as it appears in the bulletin.
+* All area objects **MUST** have a [valid `psgc`
+  property](#philippine-standard-geographic-code), if one is available.
+
+## Warning objects
 A warning area is an area where a TCWS warning is in effect. These have varying
-granularities, depending on the extent and intensity of the storm.
+granularities, depending on the extent and intensity of the storm. These may
+encompass part of an area, or the entirety of it.
 
 There has been a lot of discrepancy on how TCWS warnings have been issued.
 In some cases, TCWS warnings are applied to entire provinces, and sometimes
-only to very specific portions of municipalities. The following policy
-should be applied in producing and implementing TCWS warnings objects:
+only to very specific portions of municipalities or islands. The following
+policy should be applied in producing and implementing TCWS warnings objects:
 
+* TCWS warning objects **MUST** be a valid [area object](#areas).
+* TCWS warning objects **MUST** have a `partial` boolean property.
+    * This property **MUST** be `true` if the warning is applied only to a
+      portion of the area referenced by `name`.
+    * This property **MUST** be `false` if the warning is fully applicable
+      to the area, with no other parts of the area under a higher TCWS level.
+* If a warning has been raised only for a portion of an area, the area
+  **MUST** have its own TCWS warning object with `partial` set to `true`.
+    * Such an object **MUST** have an `includes` object property.
+        * The object **MUST** have a `term` string property, set to the term
+          used in describing the part (e.g. "portion", "region", etc.)
+        * The object **MUST** have a `part` string property, set to the part
+          of the area which is under the warning (e.g. "northwestern").
+        * For "mainland" areas, the `part` property **MUST** be set to
+          `"mainland"` and the `term` property **MUST** be undefined.
+        * For "rest of" areas, the `part` property **MUST** be set to
+          `"rest"` and the `term` property **MUST** be undefined.
+        * The object **MUST** have an `areas` array property.
+        * For every included area in the warning, the `areas` array **MUST**
+          contain a valid [area object](#areas). This **MAY** be an empty
+          array if the `part` is `"rest"` or `"mainland"` and no areas were
+          explicitly mentioned in the bulletin.
 * There **MUST** be a TCWS warning object for the highest possible granularity.
     * If a warning has been raised for an entire province, with no higher
       or lower warnings for specific municipalities in the province, there
@@ -196,45 +228,72 @@ should be applied in producing and implementing TCWS warnings objects:
       a different warning, the province **MUST** have its own TCWS warning object.
     * If a warning has been raised for a specific portion of a municipality,
       it **MUST** have its own TCWS warning object and **MUST** have the
-      `part` property set appropriately.
+      `part`/`includes` property set appropriately.
+    * If a warning has been raised for the rest of a province or municipality,
+      where a specific portion of the province or municipality has been issued
+      a higher warning level, the province or municipality **MUST** have its
+      own TCWS warning object with the `part`/`includes` property set
+      appropriately.
     * If an area is not under any TCWS warning, it **MUST NOT** have a
       TCWS warning object.
-* TCWS warning objects **MUST** have a Philippine Standard Geographic Code
-  (PSGC) property.
-    * This property **MUST** be a string containing the PSGC of the area.
-    * This property **MUST** be a 10-digit PSGC.
-    * This property **MUST** be a valid PSGC.
-    * Provinces **MUST** have a PSGC ending in `00000`.
-    * Municipalities **MUST** have a PSGC ending in `000`.
-    * If no valid PSGC exists for the area, this property **MUST** be `null`.
-* TCWS warning objects which only cover a portion of a municipality or
-  province **MUST** have a `part` property.
-    * This property **MUST** be a string containing the portion.
-    * This property **MUST** be a valid portion name.
-    * If no valid portion name exists for the area, this property **MUST**
-      be undefined.
-* If the name used in the bulletin differs from the official name of the
-  area according to the PSGC database, the `name` property **MUST** be set.
-    * This property **MUST** be a string containing the name of the area
-      according to the bulletin.
+
+### Philippine Standard Geographic Code
+TCWS warning objects and the areas they reference **MUST** have a
+`psgc` Philippine Standard Geographic Code (PSGC) string property. This aids
+in determining specific areas which are under a TCWS warning on a map
+and allows easy machine processing of affected areas.
+
+* This property **MUST** be a string containing the PSGC of the area.
+* This property **MUST** be a 10-digit PSGC.
+* This property **MUST** be a valid PSGC.
+* Provinces **MUST** have a PSGC ending in `00000`.
+* Municipalities **MUST** have a PSGC ending in `000`.
+* If no valid PSGC exists for the area, this property **MUST** be `null`.
 
 ### Example conversions
-```json
+```js
 // TCWS warning object for the entire province of Albay
-[ { "psgc": "050500000" } ]
+{ 
+  "psgc": "050500000",
+  "name": "Albay",
+  "partial": false
+}
 ```
 ```json
 // TCWS warning object for the City of Manila, under the name "Manila"
-[ {
-    "psgc": "133900000",
-    "name": "Manila"
-} ]
+{ 
+  "psgc": "133900000",
+  "name": "Manila",
+  "partial": false
+}
 ```
-```json
-// TCWS #1 for the entire province of Bulacan
-// TCWS #2 for the municipality of Marilao
+```js
+// TCWS #2 for the extreme southern portion of Bulacan
+// TCWS #1 for the rest of Bulacan
 {
-    "2": [ { "psgc": "031411000" } ],
-    "1": [ { "psgc": "031400000" } ]
+  "2": [ { 
+    "psgc": "031400000",
+    "name": "Bulacan",
+    "partial": true,
+    "includes": {
+      "term": "portion",
+      "part": "extreme southern",
+      "areas": [
+        { "psgc": "0301404000", "name": "Bocaue" },
+        { "psgc": "0301405000", "name": "Bulakan" },
+        { "psgc": "0301411000", "name": "Marilao" },
+        { "psgc": "0301412000", "name": "Meycauayan" },
+        { "psgc": "0301414000", "name": "Obando" },
+      ]
+    }
+  } ],
+  "1": [ {
+    "psgc": "031400000",
+    "name": "Bulacan",
+    "partial": true,
+    "includes": {
+      "part": "rest"
+    }
+  } ]
 }
 ```
