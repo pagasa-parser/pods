@@ -173,10 +173,18 @@ Tropical Cyclone Wind Signal (TCWS) warnings are issued by the PAGASA
 in areas where tropical cyclone winds are expected to occur. This property
 of the tropical cyclone resource object is highly specific to the TCWS.
 
-* The `warnings` property **MUST** be an object with keys `"5"`, `"4"`, `"3"`, `"2"`, `"1"`.
-* The properties of `warnings` **SHOULD** be ordered in decreasing severity.
-* Each key represents a TCWS warning level, from TCWS #1 to TCWS #5.
-* Each value in `warnings` **MUST** be an array of [warning objects](#warning-objects).
+* The `warnings` property **MUST** be an object with signal level properties `"5"`,
+  `"4"`, `"3"`, `"2"`, `"1"`, and metadata properties `"valid_until"` and `"valid_since"`.
+* The `warnings` property **MUST** have a `valid_until` string property.
+  * This property **MUST** be set to the date and time at which the TCWS
+    warnings are no longer valid.
+* The `warnings` property **MUST** have a `valid_since` string property.
+  * This property **MUST** be set to the date and time at which the TCWS
+    warnings became valid.
+* The `warnings` property **MAY** contain a `citation` property.
+* The level properties of `warnings` **SHOULD** be ordered in decreasing severity.
+* Each level property represents a TCWS warning level, from TCWS #1 to TCWS #5.
+* Each level property in `warnings` **MUST** be an array of [warning objects](#warning-objects).
 
 ## Areas
 An **area** here refers to a province, municipality, island, island group, or
@@ -247,6 +255,7 @@ policy should be applied in producing and implementing TCWS warnings objects:
       appropriately.
     * If an area is not under any TCWS warning, it **MUST NOT** have a
       TCWS warning object.
+* The warning object **MAY** contain a `citation` property.
 
 ### Philippine Standard Geographic Code
 TCWS warning objects and the areas they reference **MUST** have a
@@ -365,3 +374,7 @@ as a convenience for map rendering.
     ]
 }
 ```
+
+# Canonical definition
+The canonical definition for this resource is maintained in its [TypeScript type
+definition]({{typedefs}}/events/cyclones/Cyclone.ts).

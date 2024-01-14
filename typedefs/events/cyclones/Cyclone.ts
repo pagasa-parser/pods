@@ -2,6 +2,8 @@ import {DisasterEvent} from "../DisasterEvent";
 import {CycloneMeteorologicalInformation} from "./CycloneMeteorologicalInformation";
 import {CycloneBulletin} from "./CycloneBulletin";
 import {WarningArea} from "./WarningArea";
+import {DateString} from "../../types";
+import {Citation} from "../../Citation";
 
 /**
  * A tropical cyclone is an area of low atmospheric pressure which
@@ -83,5 +85,24 @@ export interface Cyclone extends DisasterEvent {
      */
     archive?: (CycloneMeteorologicalInformation | CycloneBulletin)[];
 
-    warnings: Record<`${1 | 2 | 3 | 4 | 5}`, WarningArea[]>
+    /**
+     * Active warning areas for this tropical cyclone.
+     */
+    warnings?: Record<`${1 | 2 | 3 | 4 | 5}`, WarningArea[]> & {
+        /**
+         * The date and time since when this information is valid.
+         * This is usually the issuance date of a tropical cyclone bulletin.
+         */
+        valid_since: DateString;
+        /**
+         * The date and time until when this information is valid.
+         * This is usually found in the "Valid until" field at the
+         * top of a tropical cyclone bulletin.
+         */
+        valid_until: DateString;
+        /**
+         * The source of this information.
+         */
+        citation?: Citation | Citation[];
+    };
 }

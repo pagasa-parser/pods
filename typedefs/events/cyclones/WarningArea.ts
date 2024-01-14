@@ -1,10 +1,15 @@
 import {Area} from "./Area";
+import {Citation} from "../../Citation";
 
-export interface WarningAreaWhole extends Area {
+export interface WarningAreaBase extends Area {
+    citation?: Citation | Citation[];
+}
+
+export interface WarningAreaWhole extends WarningAreaBase {
     partial: false;
 }
 
-export interface WarningAreaSection extends Area {
+export interface WarningAreaSection extends WarningAreaBase {
     partial: true;
     includes: {
         type: "section";
@@ -14,7 +19,7 @@ export interface WarningAreaSection extends Area {
     }
 }
 
-export interface WarningAreaMainland extends Area {
+export interface WarningAreaMainland extends WarningAreaBase {
     partial: true;
     includes: {
         type: "mainland";
@@ -22,7 +27,7 @@ export interface WarningAreaMainland extends Area {
     }
 }
 
-export interface WarningAreaRest extends Area {
+export interface WarningAreaRest extends WarningAreaBase {
     partial: true;
     includes: {
         type: "rest";

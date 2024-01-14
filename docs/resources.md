@@ -20,7 +20,7 @@ These rules apply to all resources in this specification:
    containing a [metadata object](metadata/definition.md).
 7. All resources **MAY** allow additional properties, which should be handled by
     interpreters according to its definition.
-8. All resources **MUST** allow an optional `citation` property within all of its properties
+8. All resources **SHOULD** allow an optional `citation` property within all of its properties
    with an object type, excluding those required above, containing a
    [citation object or array](citation/definition.md).
 9. All resources **MUST** encode timestamps in ISO 8601 format (e.g.
@@ -30,6 +30,6 @@ These rules apply to all resources in this specification:
 11. All resources **SHOULD** order the properties defined above as they appear in
    this definition.
 
-# Canoncial definition
+# Canonical definition
 The canonical definition for this resource is maintained in its [TypeScript type
-definition]({{repo.url}}/blob/master/typedefs/ResourceBase.ts).
+definition]({{typedefs}}/ResourceBase.ts).
