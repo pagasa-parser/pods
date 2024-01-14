@@ -219,6 +219,13 @@ policy should be applied in producing and implementing TCWS warnings objects:
           contain a valid [area object](#areas). This **MAY** be an empty
           array if the `part` is `"rest"` or `"mainland"` and no areas were
           explicitly mentioned in the bulletin.
+        * Islands that are part of the included areas in the warning **MAY**
+          be given a [valid `psgc` property](#philippine-standard-geographic-code)
+          if one is available, as long as the entirety of the island is within
+          the jurisdiction of the area.
+* Islands which are not included areas of a warning **MUST** be given
+  their own TCWS warning object if they are under a TCWS warning, even
+  if the island is part of a larger area which is also under a TCWS warning.
 * There **MUST** be a TCWS warning object for the highest possible granularity.
     * If a warning has been raised for an entire province, with no higher
       or lower warnings for specific municipalities in the province, there
@@ -251,25 +258,26 @@ and allows easy machine processing of affected areas.
 * If no valid PSGC exists for the area, this property **MUST** be `null`.
 
 ### Example conversions
-```js
-// TCWS warning object for the entire province of Albay
+
+TCWS warning object for the entire province of Albay
+```json
 { 
   "psgc": "050500000",
   "name": "Albay",
   "partial": false
 }
 ```
+TCWS warning object for the City of Manila, under the name "Manila"
 ```json
-// TCWS warning object for the City of Manila, under the name "Manila"
 { 
   "psgc": "133900000",
   "name": "Manila",
   "partial": false
 }
 ```
-```js
-// TCWS #2 for the extreme southern portion of Bulacan
-// TCWS #1 for the rest of Bulacan
+
+TCWS #2 for the extreme southern portion of Bulacan, TCWS #1 for the rest of Bulacan
+```json
 {
   "2": [ { 
     "psgc": "031400000",
@@ -295,5 +303,24 @@ and allows easy machine processing of affected areas.
       "part": "rest"
     }
   } ]
+}
+```
+
+TCWS #5 for the eastern portion of Babuyan Islands (Camiguin Island).
+TCWS #4 for Cagayan. Note that the Babuyan Islands is not given a `psgc`
+property, but Camiguin Island was given a `psgc` property as it is within
+the jurisdiction of Calayan.
+```json
+{
+  "5": [ {
+    "name": "Babuyan Islands",
+    "partial": true,
+    "includes": {
+      "term": "portion",
+      "part": "eastern",
+      "areas": [ { "psgc": "0201509000", "name": "Camiguin Island" } ]
+    }
+  } ],
+  "4": [ { "psgc": "0201500000", "name": "Cagayan", "partial": false } ]
 }
 ```
