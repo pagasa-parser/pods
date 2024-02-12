@@ -1,2 +1,5 @@
 node_modules
 .idea
+# drawio temp file
+*.dtmp
+*.bkp
