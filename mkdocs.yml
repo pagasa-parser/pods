@@ -1,26 +1,40 @@
 site_name: Philippine Open Disaster Specification
 
 plugins:
+  - search
+  - macros
   - literate-nav:
       nav_file: nav.md
       implicit_index: false
-  - macros
+  - git-revision-date-localized:
+        enable_creation_date: true
+  - git-authors
 
 markdown_extensions:
   - admonition
   - pymdownx.details
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.highlight:
+        anchor_linenums: true
+        line_spans: __span
+        pygments_lang_class: true
+
 
 extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pagasa-parser/pods
+  # For macros
   repo:
     url: https://github.com/pagasa-parser/pods
   typedefs: https://github.com/pagasa-parser/pods/blob/master/typedefs
+
+repo_name: pods
+repo_url: https://github.com/pagasa-parser/pods
+copyright: |
+  Copyright &copy; 2023&ndash;2024 Philippine Open Disaster Specification contributors. Published under the <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> license.
 
 theme:
   name: material
@@ -32,3 +46,4 @@ theme:
     - navigation.instant.progress
     - navigation.sections
     - navigation.expand
+    - content.action.edit
