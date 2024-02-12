@@ -375,6 +375,6 @@ as a convenience for map rendering.
 }
 ```
 
-# Canonical definition
+## Canonical definition
 The canonical definition for this resource is maintained in its [TypeScript type
 definition]({{typedefs}}/events/cyclones/Cyclone.ts).
