@@ -1,5 +1,10 @@
 # Philippine Open Disaster Specification
 
+> [!NOTE]
+> The PODS is currently in a drafting stage. Comments and suggestions 
+> are [welcome](https://github.com/pagasa-parser/pods/discussions),
+> and the specification is subject to change.
+
 This is the repository for the Philippine Open Disaster Specification (PODS).
 The PODS is a specification for describing disaster-related data in the
 Philippines. Its development arises from the need to centralize and
@@ -22,5 +27,5 @@ This specification documentation is licensed under the [Creative Commons
 Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 Machine-readable specification files, such as JSON Schema files and TypeScript
-interface and type defintions, are licensed under the [Apache License
+interface and type definitions, are licensed under the [Apache License
 2.0](https://www.apache.org/licenses/LICENSE-2.0).

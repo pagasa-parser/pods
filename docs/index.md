@@ -1,5 +1,11 @@
 # Introduction
 
+!!! note
+
+    The PODS is currently in a drafting stage. Comments and suggestions
+    are [welcome](https://github.com/pagasa-parser/pods/discussions),
+    and the specification is subject to change.
+
 The Philippine Open Disaster Specification (PODS) is a specification for
 describing disaster-related data in the Philippines. Its development
 arises from the need to centralize and standardize the multitude of
