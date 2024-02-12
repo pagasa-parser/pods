@@ -7,6 +7,7 @@ to with the umbrella term "*bagyo*", which can vary from very weak
 storms to supertyphoons.
 
 ## Canonical sources
+
 Multiple sources of information exist for meteorological data on a
 given tropical cyclone. For this reason, it is usually hard to
 determine which source is the most accurate. To address this, the
@@ -28,6 +29,7 @@ events. However, context from other agencies are sometimes also
 important for a more complete picture of the event.
 
 ## Basic information
+
 * All tropical cyclone resource objects **MUST** have a `type` of
   `cyclone`.
 * All tropical cyclone resource objects **MUST** have an `international_name`
@@ -42,22 +44,22 @@ important for a more complete picture of the event.
     * In the absence of an international name, this property **MUST** be `null`.
 * All tropical cyclone resource objects **MUST** have an `identifiers`
   property, if identifiers exist.
-  * This property **MUST** be an object.
-  * This object **MUST** contain the following properties, if identifiers exist:
-    * `jma`: The JMA-designated ID of the tropical cyclone (e.g. `2202`), if any.
-    * `jtwc`: The JTWC-designated ID of the tropical cyclone (e.g. `02W`), if any.
-    * `wikidata`: The Wikidata entity ID of the tropical cyclone (e.g. `Q106493857`), if any.
-    * `ibtracs`: The International Best Track Archive for Climate Stewardship
-      (IBTrACS) cyclone ID of the tropical cyclone (e.g. `2021104N08138`), if any.
-  * If there are no additional identifiers for this storm except its name,
-    this property **MUST** be `null`.
+    * This property **MUST** be an object.
+    * This object **MUST** contain the following properties, if identifiers exist:
+        * `jma`: The JMA-designated ID of the tropical cyclone (e.g. `2202`), if any.
+        * `jtwc`: The JTWC-designated ID of the tropical cyclone (e.g. `02W`), if any.
+        * `wikidata`: The Wikidata entity ID of the tropical cyclone (e.g. `Q106493857`), if any.
+        * `ibtracs`: The International Best Track Archive for Climate Stewardship
+          (IBTrACS) cyclone ID of the tropical cyclone (e.g. `2021104N08138`), if any.
+    * If there are no additional identifiers for this storm except its name,
+      this property **MUST** be `null`.
 * Tropical cyclone resource objects **MAY** have a `current` property.
-  * This property **MUST** be `false` if it is no longer active at the time
-    of production.
-  * This property **MUST** be a [meteorological information
-    object](#meteorological-information) if it is active at the time of production.
-  * This property **MAY** be omitted if the validity of the information
-    has lapsed (`valid_until` is in the past).
+    * This property **MUST** be `false` if it is no longer active at the time
+      of production.
+    * This property **MUST** be a [meteorological information
+      object](#meteorological-information) if it is active at the time of production.
+    * This property **MAY** be omitted if the validity of the information
+      has lapsed (`valid_until` is in the past).
 
 ## Meteorological information
 
@@ -89,9 +91,9 @@ intensity, position, and movement.
   storm's current position.
     * This property **MAY** be an object.
         * This object **MUST** have a `latitude` number property with the storm's current
-        latitude in decimal degrees.
+          latitude in decimal degrees.
         * This object **MUST** have a `longitude` number property with the storm's current
-        longitude in decimal degrees.
+          longitude in decimal degrees.
     * This property **MAY** be a two-number tuple, containing a latitude and longitude
       respectively.
     * Southern latitudes **MUST** be negative.
@@ -102,15 +104,16 @@ intensity, position, and movement.
     * This property **MAY** be a localizable string.
     * This property **MAY** be an object.
         * This object **MUST** have a `direction` number property with the storm's current
-        direction in degrees.
+          direction in degrees.
         * This object **MUST** have a `speed` number property with the storm's current
-        speed in knots.
+          speed in knots.
     * The property **MUST** be either a string, an object, or undefined.
 * If no datum is available for the above, the property **MUST** be undefined.
 * Meteorological information objects **SHOULD** have a `citation` property,
   set to a [citation object or array](../citation/definition.md).
 
 ### Bulletins
+
 Bulletin data is available for some meteorological information objects.
 The bulletin data exposes information about the bulletin from which
 the information was sourced.
@@ -145,11 +148,22 @@ defined by the World Meteorological Organization (WMO) in
 WMO Publication No. 9, Volume C, Chapter I, Catalogue of Meteorological Bulletins.
 
 ### Peak information
-Peak information is stored in the `peak` property. This property
-**MUST** be set to the [meteorological information object](#meteorological-information)
-at which the tropical cyclone is at its lowest minimum central pressure.
+
+Peak information is stored in the `peak` property.
+
+* This property **MUST** be set to the [meteorological information object](#meteorological-information)
+  at which the tropical cyclone is at its lowest minimum central pressure.
+* This **MUST NOT** refer to a point in the future.
+* This **MUST** have its `valid_since` property set to the time at which the
+  peak intensity was achieved.
+* This **MUST** have its `valid_until` property set to the time at which the
+* peak intensity was no longer valid.
+* In the event that a minimum central pressure is reached multiple times,
+  the peak information **MUST** be set to the earliest time at which the
+  lowest minimum central pressure was achieved.
 
 ### Current information
+
 Current information is stored in the `current` property. This property
 **MUST** be set to the current [meteorological information object](#meteorological-information)
 for the tropical cyclone, or `false` if the cyclone is no longer active.
@@ -157,18 +171,24 @@ for the tropical cyclone, or `false` if the cyclone is no longer active.
 This property **MAY** be a [bulletin data object](#bulletins), if supported.
 
 ### Archive information
+
 Archive information is stored in the `archive` property. This property
 **MUST** be set to an array of past [meteorological information objects](#meteorological-information)
 or [bulletin data objects](#bulletins) for the tropical cyclone. The
-current information **MUST NOT** be found in the archive array.
+current information **MUST NOT** be found in the archive array. The
+archive array **MAY** be ordered chronologically, with the most recent
+first.
 
 ### Forecast information
+
 Forecast information is stored in the `forecast` property. This property
 **MUST** be set to an array of future [meteorological information objects](#meteorological-information)
 or a single future meteorological information object for the tropical cyclone,
-if forecasts have been provided by the issuing agency.
+if forecasts have been provided by the issuing agency. The forecast array
+**MAY** be ordered chronologically, with the soonest first.
 
 ## Warnings
+
 Tropical Cyclone Wind Signal (TCWS) warnings are issued by the PAGASA
 in areas where tropical cyclone winds are expected to occur. This property
 of the tropical cyclone resource object is highly specific to the TCWS.
@@ -176,26 +196,28 @@ of the tropical cyclone resource object is highly specific to the TCWS.
 * The `warnings` property **MUST** be an object with signal level properties `"5"`,
   `"4"`, `"3"`, `"2"`, `"1"`, and metadata properties `"valid_until"` and `"valid_since"`.
 * The `warnings` property **MUST** have a `valid_until` string property.
-  * This property **MUST** be set to the date and time at which the TCWS
-    warnings are no longer valid.
+    * This property **MUST** be set to the date and time at which the TCWS
+      warnings are no longer valid.
 * The `warnings` property **MUST** have a `valid_since` string property.
-  * This property **MUST** be set to the date and time at which the TCWS
-    warnings became valid.
+    * This property **MUST** be set to the date and time at which the TCWS
+      warnings became valid.
 * The `warnings` property **MAY** contain a `citation` property.
 * The level properties of `warnings` **SHOULD** be ordered in decreasing severity.
 * Each level property represents a TCWS warning level, from TCWS #1 to TCWS #5.
 * Each level property in `warnings` **MUST** be an array of [warning objects](#warning-objects).
 
 ## Areas
+
 An **area** here refers to a province, municipality, island, island group, or
 barangay.
 
 * All area objects **MUST** have a `name` string property.
-  * It **MUST** be set to the name of the area as it appears in the bulletin.
+    * It **MUST** be set to the name of the area as it appears in the bulletin.
 * All area objects **MUST** have a [valid `psgc`
   property](#philippine-standard-geographic-code), if one is available.
 
 ## Warning objects
+
 A warning area is an area where a TCWS warning is in effect. These have varying
 granularities, depending on the extent and intensity of the storm. These may
 encompass part of an area, or the entirety of it.
@@ -214,27 +236,27 @@ policy should be applied in producing and implementing TCWS warnings objects:
 * If a warning has been raised only for a section of an area, the warning area
   **MUST** have its own TCWS warning object with `partial` set to `true`.
     * Such an object **MUST** have an `includes` object property.
-      * The object `type` property **MUST** be set to `"section"`
-      * The object **MUST** have a `term` string property, set to the term
-        used in describing the part (e.g. "portion", "region", etc.)
-      * The object **MUST** have a `part` string property, set to the part
-        of the area which is under the warning (e.g. "northwestern").
+        * The object `type` property **MUST** be set to `"section"`
+        * The object **MUST** have a `term` string property, set to the term
+          used in describing the part (e.g. "portion", "region", etc.)
+        * The object **MUST** have a `part` string property, set to the part
+          of the area which is under the warning (e.g. "northwestern").
 * If a warning has been raised only for a "mainland" area:
-  * The `type` property **MUST** be set to `"mainland"`
-  * The `part` and `term` properties **MUST** be undefined
+    * The `type` property **MUST** be set to `"mainland"`
+    * The `part` and `term` properties **MUST** be undefined
 * If a warning has been raised only for the rest of an area:
-  * The `type` property **MUST** be set to `"rest"`
-  * The `part` and `term` properties **MUST** be undefined
+    * The `type` property **MUST** be set to `"rest"`
+    * The `part` and `term` properties **MUST** be undefined
 * For sections, mainlands, and "rest of"s:
-  * The `includes` object **MUST** have an `areas` array property.
-  * For every included area in the warning, the `areas` array **MUST**
-    contain a valid [area object](#areas). This **MAY** be an empty
-    array if the `part` is `"rest"` or `"mainland"` and no areas were
-    explicitly mentioned in the bulletin.
-    * Islands that are part of the included areas in the warning **MAY**
-      be given a [valid `psgc` property](#philippine-standard-geographic-code)
-      if one is available, as long as the entirety of the island is within
-      the jurisdiction of the area.
+    * The `includes` object **MUST** have an `areas` array property.
+    * For every included area in the warning, the `areas` array **MUST**
+      contain a valid [area object](#areas). This **MAY** be an empty
+      array if the `part` is `"rest"` or `"mainland"` and no areas were
+      explicitly mentioned in the bulletin.
+        * Islands that are part of the included areas in the warning **MAY**
+          be given a [valid `psgc` property](#philippine-standard-geographic-code)
+          if one is available, as long as the entirety of the island is within
+          the jurisdiction of the area.
 * Islands which are not included areas of a warning **MUST** be given
   their own TCWS warning object if they are under a TCWS warning, even
   if the island is part of a larger area which is also under a TCWS warning.
@@ -258,6 +280,7 @@ policy should be applied in producing and implementing TCWS warnings objects:
 * The warning object **MAY** contain a `citation` property.
 
 ### Philippine Standard Geographic Code
+
 TCWS warning objects and the areas they reference **MUST** have a
 `psgc` Philippine Standard Geographic Code (PSGC) string property. This aids
 in determining specific areas which are under a TCWS warning on a map
@@ -273,16 +296,19 @@ and allows easy machine processing of affected areas.
 ### Example conversions
 
 TCWS warning object for the entire province of Albay:
+
 ```json
-{ 
+{
   "psgc": "050500000",
   "name": "Albay",
   "partial": false
 }
 ```
+
 TCWS warning object for the City of Manila, under the name "Manila":
+
 ```json
-{ 
+{
   "psgc": "133900000",
   "name": "Manila",
   "partial": false
@@ -293,50 +319,50 @@ TCWS #2 for the extreme southern portion of Bulacan, TCWS #1 for the rest of Bul
 
 ```json
 {
-    "2": [
-        {
-            "psgc": "031400000",
-            "name": "Bulacan",
-            "partial": true,
-            "includes": {
-                "type": "section",
-                "term": "portion",
-                "part": "extreme southern",
-                "areas": [
-                    {
-                        "psgc": "0301404000",
-                        "name": "Bocaue"
-                    },
-                    {
-                        "psgc": "0301405000",
-                        "name": "Bulakan"
-                    },
-                    {
-                        "psgc": "0301411000",
-                        "name": "Marilao"
-                    },
-                    {
-                        "psgc": "0301412000",
-                        "name": "Meycauayan"
-                    },
-                    {
-                        "psgc": "0301414000",
-                        "name": "Obando"
-                    }
-                ]
-            }
-        }
-    ],
-    "1": [
-        {
-            "psgc": "031400000",
-            "name": "Bulacan",
-            "partial": true,
-            "includes": {
-                "part": "rest"
-            }
-        }
-    ]
+  "2": [
+    {
+      "psgc": "031400000",
+      "name": "Bulacan",
+      "partial": true,
+      "includes": {
+        "type": "section",
+        "term": "portion",
+        "part": "extreme southern",
+        "areas": [
+          {
+            "psgc": "0301404000",
+            "name": "Bocaue"
+          },
+          {
+            "psgc": "0301405000",
+            "name": "Bulakan"
+          },
+          {
+            "psgc": "0301411000",
+            "name": "Marilao"
+          },
+          {
+            "psgc": "0301412000",
+            "name": "Meycauayan"
+          },
+          {
+            "psgc": "0301414000",
+            "name": "Obando"
+          }
+        ]
+      }
+    }
+  ],
+  "1": [
+    {
+      "psgc": "031400000",
+      "name": "Bulacan",
+      "partial": true,
+      "includes": {
+        "part": "rest"
+      }
+    }
+  ]
 }
 ```
 
@@ -348,33 +374,34 @@ as a convenience for map rendering.
 
 ```json
 {
-    "5": [
-        {
-            "name": "Babuyan Islands",
-            "partial": true,
-            "includes": {
-                "type": "section",
-                "term": "portion",
-                "part": "eastern",
-                "areas": [
-                    {
-                        "psgc": "0201509000",
-                        "name": "Camiguin Island"
-                    }
-                ]
-            }
-        }
-    ],
-    "4": [
-        {
-            "psgc": "0201500000",
-            "name": "Cagayan",
-            "partial": false
-        }
-    ]
+  "5": [
+    {
+      "name": "Babuyan Islands",
+      "partial": true,
+      "includes": {
+        "type": "section",
+        "term": "portion",
+        "part": "eastern",
+        "areas": [
+          {
+            "psgc": "0201509000",
+            "name": "Camiguin Island"
+          }
+        ]
+      }
+    }
+  ],
+  "4": [
+    {
+      "psgc": "0201500000",
+      "name": "Cagayan",
+      "partial": false
+    }
+  ]
 }
 ```
 
 ## Canonical definition
+
 The canonical definition for this resource is maintained in its [TypeScript type
 definition]({{typedefs}}/events/cyclones/Cyclone.ts).
