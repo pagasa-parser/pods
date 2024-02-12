@@ -6,7 +6,7 @@ center. In the Philippines, tropical cyclones are generally referred
 to with the umbrella term "*bagyo*", which can vary from very weak
 storms to supertyphoons.
 
-![Illustration of the tropical cyclone event resource](/assets/cyclones.svg)
+![Illustration of the tropical cyclone event resource](../assets/cyclones.svg)
 
 ## Canonical sources
 
