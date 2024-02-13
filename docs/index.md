@@ -12,6 +12,8 @@ arises from the need to centralize and standardize the multitude of
 reports and systems used by Philippine government agencies for easy
 repackaging and distribution.
 
+![High level overview](./assets/overview.svg)
+
 ## Rationale
 
 As of writing (January 2024), there exists no standard specification for
