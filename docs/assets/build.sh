@@ -56,6 +56,15 @@ googleFontsCssUrl() {
     echo "https://fonts.googleapis.com/css?family=$(echo "$1" | tr ' ' '+' | tr '\n' '|' | sed 's/|$//')"
 }
 
+
+embedFontsPlaceholder() {
+    echo "---EMBED--$1--DEBME---"
+}
+
+embedFontsTemplate() {
+    echo "--font-$1: url('data:application/woff2;charset=utf-8;base64,$(embedFontsPlaceholder "$1")');"
+}
+
 embedFonts() {
     # Newline-delimited
     USED_FONTS=$(grep -ohP "(?<=font-family(?:: |=\"))[^;]+?(?=:;|\")" "$1" | /usr/bin/sort -u)
@@ -72,26 +81,34 @@ embedFonts() {
 
     CSS_ROOT=":root {"
 
+    # Prepare first
     for FONT_URL in $GOOGLE_FONTS_URLS; do
         echo "Embedding font: $FONT_URL"
         FONT_ID="$(basename "${FONT_URL%.*}" | tr -c '[:alnum:]' '-' | sed 's/-$//')"
-        FONT_BASE64="$(curl "$FONT_URL" | base64 -w 0)"
-        CSS_ROOT+="    --font-$FONT_ID: url('data:application/woff2;charset=utf-8;base64,$FONT_BASE64');\n"
+        CSS_ROOT+=$(embedFontsTemplate "$FONT_ID")
 
         # Replace the font URL with the variable
         GOOGLE_FONTS_CSS="${GOOGLE_FONTS_CSS//"$FONT_URL"/var(--$FONT_ID)}"
     done
 
     CSS_ROOT+="}"
+    GOOGLE_FONTS_CSS="$CSS_ROOT $GOOGLE_FONTS_CSS"
 
-    GOOGLE_FONTS_CSS="$CSS_ROOT\n\n$GOOGLE_FONTS_CSS"
-
-    # Embed this style in the SVG
+    # Embed the style in the SVG
 
     # Break apart the <defs/> tag if it's collapsed
     sed -i 's/<defs\/>/<defs><\/defs>/' "$1"
     # Insert into the start of the <defs> tag
     sed -i "0,/<defs>/{s#<defs>#<defs>\n<style type=\"text/css\">${GOOGLE_FONTS_CSS}</style>#}" "$1"
+
+    for FONT_URL in $GOOGLE_FONTS_URLS; do
+        echo "Downloading font: $FONT_URL"
+        FONT_ID="$(basename "${FONT_URL%.*}" | tr -c '[:alnum:]' '-' | sed 's/-$//')"
+        FONT_BASE64="$(curl -s "$FONT_URL" | base64 -w 0)"
+
+        # Replace in place
+        sed -i "s#$(embedFontsPlaceholder "$FONT_ID")#$FONT_BASE64#" "$1"
+    done
 }
 
 addBackground() {
