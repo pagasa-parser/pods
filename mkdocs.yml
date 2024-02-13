@@ -1,6 +1,6 @@
 site_name: Philippine Open Disaster Specification
 
-plugins:plugins:
+plugins:
   - search
   - macros
   - git-authors
