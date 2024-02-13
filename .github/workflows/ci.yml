@@ -56,7 +56,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         steps:
             -   name: Checkout code
-                uses: actions/checkout@v4v4
+                uses: actions/checkout@v4
             -   name: Configure Git Credentials
                 run: |
                     git config user.name github-actions[bot]
