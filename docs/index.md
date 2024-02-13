@@ -12,7 +12,7 @@ arises from the need to centralize and standardize the multitude of
 reports and systems used by Philippine government agencies for easy
 repackaging and distribution.
 
-![High level overview](./assets/overview.svg)
+![High level overview](./assets/svg/overview.svg)
 
 ## Rationale
 

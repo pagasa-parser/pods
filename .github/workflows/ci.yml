@@ -1,23 +1,26 @@
 name: ci
 
 on:
-    push:
-        branches:
-            - master
+    - push
+    - pull_request
 
 permissions:
     contents: write
 
 jobs:
-    deploy:
+    build:
         runs-on: ubuntu-latest
+        env:
+            OFFLINE: true
         steps:
-            -   uses: actions/checkout@v4
-            -   name: Configure Git Credentials
-                run: |
-                    git config user.name github-actions[bot]
-                    git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-            -   uses: actions/setup-python@v5
+            -   name: Checkout code
+                uses: actions/checkout@v4
+            -   name: Install snap
+                run: sudo apt-get update && sudo apt-get install -y snapd
+            -   name: Install draw.io
+                run: sudo snap install drawio
+            -   name: Setup Python 3.x
+                uses: actions/setup-python@v5
                 with:
                     python-version: 3.x
             -   run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
@@ -27,5 +30,54 @@ jobs:
                     path: .cache
                     restore-keys: |
                         mkdocs-material-
-            -   run: pip install -r requirements.txt
-            -   run: mkdocs gh-deploy --force
+            -   name: Install Pip requirements
+                run: pip install -r requirements.txt
+            -   name: Build SVG assets
+                working-directory: docs/assets/
+                run: |
+                    export DISPLAY=:99
+                    sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+                    bash ./build.sh
+            -   name: Build Mkdocs
+                run: mkdocs build
+            -   name: Upload site
+                uses: actions/upload-artifact@v2
+                with:
+                    name: site
+                    path: site
+            -   name: Upload built SVG assets
+                uses: actions/upload-artifact@v2
+                with:
+                    name: diagram-svg
+                    path: docs/assets/svg/
+    deploy:
+        runs-on: ubuntu-latest
+        needs: [ build ]
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v4v4
+            -   name: Configure Git Credentials
+                run: |
+                    git config user.name github-actions[bot]
+                    git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            -   name: Setup Python 3.x
+                uses: actions/setup-python@v5
+                with:
+                    python-version: 3.x
+            -   run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+            -   uses: actions/cache@v4
+                with:
+                    key: mkdocs-material-${{ env.cache_id }}
+                    path: .cache
+                    restore-keys: |
+                        mkdocs-material-
+            -   name: Install Pip requirements
+                run: pip install -r requirements.txt
+            -   name: Download built SVG assets
+                uses: actions/download-artifact@v2
+                with:
+                    name: diagram-svg
+                    path: docs/assets/svg/
+            -   name: Deploy
+                run: mkdocs gh-deploy --force
